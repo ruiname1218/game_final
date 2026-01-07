@@ -24,6 +24,23 @@ sudo apt update
 sudo apt install -y build-essential libraylib-dev libcurl4-openssl-dev pkg-config
 ```
 
+#### Linux (Rocky Linux / CentOS / RHEL 8+)
+Raylibが標準リポジトリにないため、ソースからビルドする必要があります。
+
+1. 必要なツールのインストール:
+```bash
+sudo dnf install -y git make gcc libcurl-devel alsa-lib-devel mesa-libGL-devel libX11-devel libXrandr-devel libXinerama-devel libXcursor-devel libXi-devel
+```
+
+2. Raylibのビルドとインストール:
+```bash
+# ホームディレクトリなど任意の場所で実行
+git clone https://github.com/raysan5/raylib.git raylib_src
+cd raylib_src/src
+make
+sudo make install
+```
+
 ### 2. ビルド
 リポジトリをクローンしたディレクトリで `make` を実行します。
 
