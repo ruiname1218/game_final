@@ -1,0 +1,5 @@
+build/
+draw_game
+*.o
+.DS_Store
+.vscode/
