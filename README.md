@@ -1,58 +1,61 @@
-# お絵描き判定ゲーム (Draw & Guess)
+# AI ART JUDGE 🎨🤖
 
-Raylib + C言語で作成されたお絵描き判定ゲームです。Gemini Vision APIを使用してLLMが絵を判定します。
+AIがあなたの絵を厳しく審査する！お絵描き＆判定ゲームです。
+お題に沿って絵を描くと、AI審査員（Ankobinary氏）があなたの作品を評価し、コメントをくれます。
 
-## 必要な依存関係
+## 動作環境
 
-### Ubuntu/Debian
+- macOS / Linux
+- Raylib 5.0+
+- Gemini API Key
+
+## インストール方法
+
+### 1. 依存ライブラリのインストール
+
+#### macOS (Homebrew)
+```bash
+brew install raylib
+```
+
+#### Linux (Ubuntu/Debian)
 ```bash
 sudo apt update
-sudo apt install build-essential libraylib-dev libcurl4-openssl-dev libcjson-dev
+sudo apt install -y build-essential libraylib-dev libcurl4-openssl-dev pkg-config
 ```
 
-### Fedora
-```bash
-sudo dnf install raylib-devel libcurl-devel cjson-devel
-```
-
-### Arch Linux
-```bash
-sudo pacman -S raylib curl cjson
-```
-
-## ビルド
+### 2. ビルド
+リポジトリをクローンしたディレクトリで `make` を実行します。
 
 ```bash
 make
 ```
 
-## 実行
-
-Gemini API Keyを環境変数に設定してから実行:
+### 3. APIキーの設定 (重要！)
+このゲームは Google Gemini API を使用して画像認識を行います。
+環境変数 `GEMINI_API_KEY` にAPIキーを設定してから実行してください。
 
 ```bash
-export GEMINI_API_KEY="your-api-key-here"
+export GEMINI_API_KEY="your_api_key_here"
 ./draw_game
 ```
 
 ## 遊び方
 
-1. スペースキーでゲーム開始
-2. 画面に表示されたお題を10秒以内に描く
-3. マウス左ボタンでドラッグして描画
-4. マウスホイールでブラシサイズ変更
-5. 画面下部のカラーパレットで色変更
-6. Cキーでキャンバスクリア
-7. LLMが正解と判定すれば続行、不正解でゲームオーバー
-8. 最終スコアに応じて称号が決まる
+1. タイトル画面で **SPACE** を押してスタート
+2. お題が表示されるので、制限時間内に絵を描いてください
+   - **左クリックドラッグ**: 描く
+   - **マウスホイール**: ブラシサイズ変更
+   - **Cキー**: キャンバス消去
+3. 時間切れになるとAIが採点します
+   - 素晴らしい作品には高得点と賞賛が！
+   - 微妙な作品には...厳しいコメントが返ってくるかも？
 
-## 称号一覧
+## 開発者メモ (Developer Notes)
 
-| スコア | 称号 |
-|--------|------|
-| 0 | 才能なし |
-| 1-2 | 凡人 |
-| 3-4 | 小学生レベル |
-| 5-6 | なかなかやるな |
-| 7-9 | 芸術家の卵 |
-| 10+ | 画伯 |
+- `src/` : ソースコード
+- `assets/` : 画像・フォントリソース
+- `Makefile` : ビルド設定 (Mac/Linux自動判別)
+
+### ライセンス
+MIT License
