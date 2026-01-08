@@ -2,17 +2,7 @@
 #include <stdlib.h>
 #include <math.h>
 
-// Palette colors
-static const Color palette_colors[PALETTE_COLORS] = {
-    BLACK,
-    WHITE,
-    RED,
-    ORANGE,
-    YELLOW,
-    GREEN,
-    BLUE,
-    PURPLE
-};
+
 
 void canvas_init(Canvas* canvas) {
     canvas->texture = LoadRenderTexture(CANVAS_WIDTH, CANVAS_HEIGHT);
