@@ -14,13 +14,12 @@ static char last_error[MAX_ERROR_LEN] = {0};
 static char last_response[1024] = {0};  // Store full AI response
 static CURL* curl = NULL;
 
-// レスポンスデータを格納する構造体
+// Response data structure
 typedef struct {
     char* data;
     size_t size;
 } ResponseData;
 
-// curlコールバック関数
 static size_t write_callback(void* contents, size_t size, size_t nmemb, void* userp) {
     size_t realsize = size * nmemb;
     ResponseData* resp = (ResponseData*)userp;
@@ -39,7 +38,6 @@ static size_t write_callback(void* contents, size_t size, size_t nmemb, void* us
 }
 
 bool llm_init(void) {
-    // API keyを環境変数から取得
     const char* key = getenv("GEMINI_API_KEY");
     if (key == NULL || strlen(key) == 0) {
         snprintf(last_error, MAX_ERROR_LEN, "GEMINI_API_KEY environment variable not set");
@@ -47,7 +45,6 @@ bool llm_init(void) {
     }
     strncpy(api_key, key, sizeof(api_key) - 1);
     
-    // curl初期化
     curl_global_init(CURL_GLOBAL_DEFAULT);
     curl = curl_easy_init();
     if (curl == NULL) {
@@ -72,7 +69,6 @@ bool llm_judge_image(const unsigned char* image_data, int image_size, const char
         return false;
     }
     
-    // Base64エンコード
     size_t b64_len = 0;
     char* b64_data = base64_encode(image_data, image_size, &b64_len);
     if (b64_data == NULL) {
@@ -80,13 +76,11 @@ bool llm_judge_image(const unsigned char* image_data, int image_size, const char
         return false;
     }
     
-    // JSONリクエストボディを構築
     cJSON* root = cJSON_CreateObject();
     cJSON* contents = cJSON_CreateArray();
     cJSON* content = cJSON_CreateObject();
     cJSON* parts = cJSON_CreateArray();
     
-    // 画像パート
     cJSON* image_part = cJSON_CreateObject();
     cJSON* inline_data = cJSON_CreateObject();
     cJSON_AddStringToObject(inline_data, "mime_type", "image/png");
@@ -94,7 +88,6 @@ bool llm_judge_image(const unsigned char* image_data, int image_size, const char
     cJSON_AddItemToObject(image_part, "inline_data", inline_data);
     cJSON_AddItemToArray(parts, image_part);
     
-    // Text prompt
     cJSON* text_part = cJSON_CreateObject();
     char prompt_text[512];
     snprintf(prompt_text, sizeof(prompt_text), 
@@ -119,16 +112,13 @@ bool llm_judge_image(const unsigned char* image_data, int image_size, const char
         return false;
     }
     
-    // URLにAPI keyを追加
     char url[512];
     snprintf(url, sizeof(url), "%s?key=%s", GEMINI_API_URL, api_key);
     
-    // レスポンスデータ
     ResponseData response = {0};
     response.data = malloc(1);
     response.size = 0;
     
-    // curlリクエスト設定
     curl_easy_reset(curl);
     curl_easy_setopt(curl, CURLOPT_URL, url);
     curl_easy_setopt(curl, CURLOPT_POSTFIELDS, json_str);
@@ -144,7 +134,6 @@ bool llm_judge_image(const unsigned char* image_data, int image_size, const char
     printf("DEBUG: Sending request to Gemini API...\n");
     #endif
     
-    // Execute request
     CURLcode res = curl_easy_perform(curl);
     
     curl_slist_free_all(headers);
@@ -164,19 +153,14 @@ bool llm_judge_image(const unsigned char* image_data, int image_size, const char
     printf("DEBUG: Response data: %.500s\n", response.data);
     #endif
     
-    // Parse response
     cJSON* resp_json = cJSON_Parse(response.data);
     free(response.data);
     
     if (resp_json == NULL) {
         snprintf(last_error, MAX_ERROR_LEN, "Failed to parse response JSON");
-        #ifdef DEBUG
-        printf("DEBUG: JSON parse failed\n");
-        #endif
         return false;
     }
     
-    // エラーチェック
     cJSON* error = cJSON_GetObjectItem(resp_json, "error");
     if (error != NULL) {
         cJSON* message = cJSON_GetObjectItem(error, "message");
@@ -189,7 +173,6 @@ bool llm_judge_image(const unsigned char* image_data, int image_size, const char
         return false;
     }
     
-    // レスポンステキストを取得
     cJSON* candidates = cJSON_GetObjectItem(resp_json, "candidates");
     if (candidates == NULL || !cJSON_IsArray(candidates) || cJSON_GetArraySize(candidates) == 0) {
         snprintf(last_error, MAX_ERROR_LEN, "No candidates in response");
@@ -216,27 +199,21 @@ bool llm_judge_image(const unsigned char* image_data, int image_size, const char
         return false;
     }
     
-    // Check if response starts with YES or NO (case insensitive)
     const char* response_text = text->valuestring;
     bool result = false;
     
-    // Store response for display
     strncpy(last_response, response_text, sizeof(last_response) - 1);
     
-    // Skip any leading whitespace
     while (*response_text == ' ' || *response_text == '\n' || *response_text == '\t') {
         response_text++;
     }
     
-    // Only check the FIRST word - must start with YES or NO
     if (strncasecmp(response_text, "YES", 3) == 0) {
-        // Make sure it's not part of another word
         char next = response_text[3];
         if (next == '\0' || next == ' ' || next == ',' || next == '.' || next == '!' || next == '\n') {
             result = true;
         }
     }
-    // If starts with NO, result stays false
     
     #ifdef DEBUG
     printf("LLM Response: %s\n", last_response);

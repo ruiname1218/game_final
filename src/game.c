@@ -15,7 +15,6 @@ extern bool g_font_loaded;
 static bool used_prompts[PROMPT_COUNT] = {false};
 static int used_count = 0;
 
-// Text helpers
 static void DrawRetroText(const char* text, int x, int y, int fontSize, Color color) {
     if (g_font_loaded) {
         DrawTextEx(g_font, text, (Vector2){(float)x, (float)y}, (float)fontSize, 2, color);
@@ -34,7 +33,6 @@ static int MeasureRetroText(const char* text, int fontSize) {
 static void DrawSpeechBubble(int box_y, const char* full_response) {
     if (!full_response || strlen(full_response) == 0) return;
 
-    // Truncate response
     char response[256];
     strncpy(response, full_response, sizeof(response) - 1);
     response[sizeof(response) - 1] = '\0';
@@ -50,12 +48,10 @@ static void DrawSpeechBubble(int box_y, const char* full_response) {
     }
 
     int box_h = 100;
-    // Bubble
     DrawRectangle(140, box_y + 10, SCREEN_WIDTH - 180, box_h, (Color){255, 220, 80, 255});
     DrawRectangle(130, box_y, SCREEN_WIDTH - 180, box_h, WHITE);
     DrawRectangleLines(130, box_y, SCREEN_WIDTH - 180, box_h, BLACK);
 
-    // Tail
     Vector2 v1 = {130, (float)box_y + 30};
     Vector2 v2 = {130, (float)box_y + 70};
     Vector2 v3 = {110, (float)box_y + 50};
@@ -64,7 +60,6 @@ static void DrawSpeechBubble(int box_y, const char* full_response) {
     DrawLineEx(v3, v2, 1, BLACK);
     DrawLineEx((Vector2){130, v1.y+2}, (Vector2){130, v2.y-2}, 2, WHITE); 
     
-    // Text
     int y = box_y + 20;
     const char* p = response;
     char line[128];
