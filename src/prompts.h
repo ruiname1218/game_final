@@ -1,7 +1,6 @@
 #ifndef PROMPTS_H
 #define PROMPTS_H
 
-// Drawing prompts (English)
 static const char* PROMPTS[] = {
     "Sun",
     "Apple",
@@ -32,7 +31,6 @@ static const char* PROMPTS[] = {
 
 #define PROMPT_COUNT (sizeof(PROMPTS) / sizeof(PROMPTS[0]))
 
-// Title system
 typedef struct {
     int min_score;
     const char* title;

@@ -25,7 +25,7 @@ char* base64_encode(const unsigned char* data, size_t input_length, size_t* outp
         encoded_data[j++] = base64_chars[triple & 0x3F];
     }
     
-    // パディング
+
     static const int mod_table[] = {0, 2, 1};
     for (i = 0; i < (size_t)mod_table[input_length % 3]; i++) {
         encoded_data[*output_length - 1 - i] = '=';
