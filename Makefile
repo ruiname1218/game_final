@@ -9,18 +9,13 @@ RAYLIB_LIBS := $(shell pkg-config --libs raylib 2>/dev/null || echo "-lraylib -l
 CURL_CFLAGS := $(shell pkg-config --cflags libcurl 2>/dev/null)
 CURL_LIBS := $(shell pkg-config --libs libcurl 2>/dev/null || echo "-lcurl")
 
-# Platform detection
-UNAME_S := $(shell uname -s)
-ifeq ($(UNAME_S),Linux)
-    LDFLAGS_EXTRA = -lGL -lrt
-endif
-ifeq ($(UNAME_S),Darwin)
-    LDFLAGS_EXTRA = -framework OpenGL -framework Cocoa -framework IOKit -framework CoreVideo
-endif
+# Link flags for Linux (KIC Environment)
+# Raylib dependencies: GL, m, pthread, dl, rt, X11
+LDFLAGS_EXTRA = -lGL -lm -lpthread -ldl -lrt -lX11
 
 # Combined flags
 CFLAGS += $(RAYLIB_CFLAGS) $(CURL_CFLAGS)
-LDFLAGS = $(RAYLIB_LIBS) $(CURL_LIBS) $(LDFLAGS_EXTRA) -lm
+LDFLAGS = $(RAYLIB_LIBS) $(CURL_LIBS) $(LDFLAGS_EXTRA)
 
 # Directories
 SRC_DIR = src

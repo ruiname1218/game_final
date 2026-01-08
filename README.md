@@ -5,34 +5,20 @@ AIがあなたの絵を厳しく審査する！お絵描き＆判定ゲームで
 
 ## 動作環境
 
-- macOS / Linux
+- Linux (Rocky Linux 8.10等)
 - Raylib 5.0+
 - Gemini API Key
 
-## インストール方法
+## インストール方法 (KIC環境 / Rocky Linux)
 
-### 1. 依存ライブラリのインストール
+KIC環境ではRaylibが標準で入っていないため、ソースからビルドしてインストールします。
 
-#### macOS (Homebrew)
-```bash
-brew install raylib
-```
-
-#### Linux (Ubuntu/Debian)
-```bash
-sudo apt update
-sudo apt install -y build-essential libraylib-dev libcurl4-openssl-dev pkg-config
-```
-
-#### Linux (Rocky Linux / CentOS / RHEL 8+)
-Raylibが標準リポジトリにないため、ソースからビルドする必要があります。
-
-1. 必要なツールのインストール:
+### 1. 必要なツールのインストール
 ```bash
 sudo dnf install -y git make gcc libcurl-devel alsa-lib-devel mesa-libGL-devel libX11-devel libXrandr-devel libXinerama-devel libXcursor-devel libXi-devel
 ```
 
-2. Raylibのビルドとインストール:
+### 2. Raylibのビルドとインストール
 ```bash
 # ホームディレクトリなど任意の場所で実行
 git clone https://github.com/raysan5/raylib.git raylib_src
