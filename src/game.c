@@ -31,6 +31,61 @@ static int MeasureRetroText(const char* text, int fontSize) {
     return MeasureText(text, fontSize);
 }
 
+static void DrawSpeechBubble(int box_y, const char* full_response) {
+    if (!full_response || strlen(full_response) == 0) return;
+
+    // Truncate to first sentence
+    char response[256];
+    strncpy(response, full_response, sizeof(response) - 1);
+    response[sizeof(response) - 1] = '\0';
+    
+    char* dot = strchr(response, '.');
+    if (dot) *(dot + 1) = '\0';
+    char* newline = strchr(response, '\n');
+    if (newline && (!dot || newline < dot)) *newline = '\0';
+
+    // Character Display
+    if (ankobinary_tex.id > 0) {
+        float scale = 0.2f;
+        DrawTextureEx(ankobinary_tex, (Vector2){20, (float)box_y}, 0.0f, scale, WHITE);
+    }
+
+    int box_h = 100;
+    // Bubble Shadow (Yellow Offset)
+    DrawRectangle(140, box_y + 10, SCREEN_WIDTH - 180, box_h, (Color){255, 220, 80, 255});
+    
+    // Bubble Body (Opaque White)
+    DrawRectangle(130, box_y, SCREEN_WIDTH - 180, box_h, WHITE);
+    DrawRectangleLines(130, box_y, SCREEN_WIDTH - 180, box_h, BLACK);
+
+    // Bubble Tail (Triangle pointing LEFT)
+    Vector2 v1 = {130, (float)box_y + 30};
+    Vector2 v2 = {130, (float)box_y + 70};
+    Vector2 v3 = {110, (float)box_y + 50};
+    DrawTriangle(v1, v3, v2, WHITE);
+    DrawLineEx(v1, v3, 1, BLACK); // Tail border
+    DrawLineEx(v3, v2, 1, BLACK);
+    // Cover the vertical line to merge
+    DrawLineEx((Vector2){130, v1.y+2}, (Vector2){130, v2.y-2}, 2, WHITE); 
+    
+    // Text rendering
+    int y = box_y + 20;
+    const char* p = response;
+    char line[128];
+    int line_idx = 0;
+    
+    while (*p) {
+        line[line_idx++] = *p++;
+        line[line_idx] = '\0';
+        
+        if (MeasureRetroText(line, 20) > SCREEN_WIDTH - 220 || *p == '\0') {
+            DrawRetroText(line, 150, y, 20, BLACK);
+            y += 25;
+            line_idx = 0;
+        }
+    }
+}
+
 bool game_init(Game* game) {
     srand((unsigned int)time(NULL));
     
@@ -272,70 +327,11 @@ void game_draw(const Game* game) {
             }
             break;
             
+            
         case STATE_RESULT:
             {
                 // AI Response Bubble
-                const char* full_response = llm_get_last_response();
-                if (full_response && strlen(full_response) > 0) {
-                    // Truncate to first sentence
-                    char response[256];
-                    strncpy(response, full_response, sizeof(response) - 1);
-                    response[sizeof(response) - 1] = '\0';
-                    
-                    char* dot = strchr(response, '.');
-                    if (dot) {
-                        *(dot + 1) = '\0'; // Include the dot
-                    }
-                    // Also stop at newline if any
-                    char* newline = strchr(response, '\n');
-                    if (newline && (!dot || newline < dot)) {
-                        *newline = '\0';
-                    }
-
-                    // Character Display
-                    if (ankobinary_tex.id > 0) {
-                        float scale = 0.2f; // Reduced scale to 0.2 to fit better
-                        // Draw scaled character on the left
-                        DrawTextureEx(ankobinary_tex, (Vector2){20, 50}, 0.0f, scale, WHITE);
-                    }
-
-                    // Bubble Shadow (Yellow Offset)
-                    DrawRectangle(140, 60, SCREEN_WIDTH - 180, 100, (Color){255, 220, 80, 255});
-                    
-                    // Bubble Body (Opaque White)
-                    DrawRectangle(130, 50, SCREEN_WIDTH - 180, 100, WHITE);
-                    DrawRectangleLines(130, 50, SCREEN_WIDTH - 180, 100, BLACK);
-                    
-                    // Bubble Tail (Triangle pointing LEFT to character)
-                    Vector2 v1 = {130, 80};
-                    Vector2 v2 = {130, 120};
-                    Vector2 v3 = {110, 100}; // Pointing left
-                    
-                    DrawTriangle(v1, v3, v2, WHITE); // Reordered vertices for CCW winding
-                    DrawLineEx(v1, v3, 1, BLACK); 
-                    DrawLineEx(v3, v2, 1, BLACK);
-                    // Cover the right line (vertical) to merge with box
-                    DrawLineEx((Vector2){130, 82}, (Vector2){130, 118}, 2, WHITE); 
-
-                    
-                    // Text rendering
-                    int y = 70;
-                    const char* p = response;
-                    char line[128];
-                    int line_idx = 0;
-                    
-                    while (*p) {
-                        line[line_idx++] = *p++;
-                        line[line_idx] = '\0';
-                        
-                        // Slightly wider text area (Adjusted X)
-                        if (MeasureRetroText(line, 20) > SCREEN_WIDTH - 220 || *p == '\0') {
-                            DrawRetroText(line, 150, y, 20, BLACK);
-                            y += 25;
-                            line_idx = 0;
-                        }
-                    }
-                }
+                DrawSpeechBubble(50, llm_get_last_response());
 
                 if (game->last_result) {
                     const char* correct = "CORRECT!";
@@ -371,66 +367,7 @@ void game_draw(const Game* game) {
                 DrawRetroText(title->title, (SCREEN_WIDTH - titw) / 2, 190, 40, GOLD);
 
                 // AI Response Bubble (below score)
-                const char* full_response = llm_get_last_response();
-                if (full_response && strlen(full_response) > 0) {
-                    // Truncate to first sentence
-                    char response[256];
-                    strncpy(response, full_response, sizeof(response) - 1);
-                    response[sizeof(response) - 1] = '\0';
-                    
-                    char* dot = strchr(response, '.');
-                    if (dot) {
-                        *(dot + 1) = '\0';
-                    }
-                    char* newline = strchr(response, '\n');
-                    if (newline && (!dot || newline < dot)) {
-                        *newline = '\0';
-                    }
-
-                    // Bubble Body
-                    int box_y = 250;
-                    int box_h = 100;
-                    
-                    // Character Display
-                    if (ankobinary_tex.id > 0) {
-                        float scale = 0.2f;
-                        DrawTextureEx(ankobinary_tex, (Vector2){20, (float)box_y}, 0.0f, scale, WHITE);
-                    }
-
-                    // Bubble Shadow (Yellow Offset)
-                    DrawRectangle(140, box_y + 10, SCREEN_WIDTH - 180, box_h, (Color){255, 220, 80, 255});
-                    
-                    // Bubble Body (Opaque White)
-                    DrawRectangle(130, box_y, SCREEN_WIDTH - 180, box_h, WHITE);
-                    DrawRectangleLines(130, box_y, SCREEN_WIDTH - 180, box_h, BLACK);
-
-                    // Bubble Tail (Triangle pointing LEFT)
-                    Vector2 v1 = {130, (float)box_y + 30};
-                    Vector2 v2 = {130, (float)box_y + 70};
-                    Vector2 v3 = {110, (float)box_y + 50};
-                    DrawTriangle(v1, v3, v2, WHITE);
-                    DrawLineEx(v1, v3, 1, BLACK); // Tail border
-                    DrawLineEx(v3, v2, 1, BLACK);
-                    // Cover the vertical line
-                    DrawLineEx((Vector2){130, v1.y+2}, (Vector2){130, v2.y-2}, 2, WHITE); 
-                    
-                    int y = box_y + 20;
-                    const char* p = response;
-                    char line[128];
-                    int line_idx = 0;
-                    
-                    while (*p) {
-                        line[line_idx++] = *p++;
-                        line[line_idx] = '\0';
-                        
-                        // Slightly wider text area (Adjusted X)
-                        if (MeasureRetroText(line, 20) > SCREEN_WIDTH - 220 || *p == '\0') {
-                            DrawRetroText(line, 150, y, 20, BLACK);
-                            y += 25;
-                            line_idx = 0;
-                        }
-                    }
-                }
+                DrawSpeechBubble(250, llm_get_last_response());
 
                 // Retry
                 const char* retry = "PRESS SPACE";
