@@ -9,32 +9,18 @@ AIがあなたの絵を厳しく審査する！お絵描き＆判定ゲームで
 - Raylib 5.0+
 - Gemini API Key
 
-## インストール方法 (KIC環境 / Rocky Linux)
+## インストール方法 (KIC環境)
 
-KIC環境ではRaylibが標準で入っていないため、ソースからビルドしてインストールします。
+Raylibはインストール済みであることが前提です。
 
-### 1. 必要なツールのインストール
-```bash
-sudo dnf install -y git make gcc libcurl-devel alsa-lib-devel mesa-libGL-devel libX11-devel libXrandr-devel libXinerama-devel libXcursor-devel libXi-devel
-```
-
-### 2. Raylibのビルドとインストール
-```bash
-# ホームディレクトリなど任意の場所で実行
-git clone https://github.com/raysan5/raylib.git raylib_src
-cd raylib_src/src
-make
-sudo make install
-```
-
-### 2. ビルド
+### 1. ビルド
 リポジトリをクローンしたディレクトリで `make` を実行します。
 
 ```bash
 make
 ```
 
-### 3. APIキーの設定 (重要！)
+### 2. APIキーの設定 (重要！)
 このゲームは Google Gemini API を使用して画像認識を行います。
 環境変数 `GEMINI_API_KEY` にAPIキーを設定してから実行してください。
 

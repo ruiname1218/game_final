@@ -14,17 +14,7 @@ AI ART JUDGE - AIお絵描き判定ゲーム
 ------------------------------------
 ターミナルで以下のコマンドを実行してください。
 
-1. 必要なライブラリのインストール（初回のみ）
-   sudo dnf install -y git make gcc libcurl-devel alsa-lib-devel mesa-libGL-devel libX11-devel libXrandr-devel libXinerama-devel libXcursor-devel libXi-devel
-
-2. Raylibのインストール（未インストールの場合）
-   git clone https://github.com/raysan5/raylib.git raylib_src
-   cd raylib_src/src
-   make
-   sudo make install
-   cd ../..
-
-3. ゲームのコンパイル
+1. ゲームのコンパイル
    make
 
    ※ エラーが出ずに `draw_game` というファイルが生成されれば成功です。
